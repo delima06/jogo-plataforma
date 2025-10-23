@@ -126,6 +126,7 @@ function animate() {
             player.position.y + player.height + player.velocity.y >= platform.position.y &&
             player.position.x + player.width >= platform.position.x &&
             player.position.x <= platform.position.x + platform.width) {
+
             // console.log('SUBIU');
             player.velocity.y = 0;
             isOnGround = true;
@@ -136,7 +137,7 @@ function animate() {
             player.position.x + player.velocity.x + player.width >= platform.position.x &&
             player.position.x <= platform.position.x + platform.width &&
             player.velocity.y < 0) {
-            //  console.log('TESTE COLISAO');
+            // console.log('TESTE COLISAO');
             player.velocity.y = 0;
         }
     });
@@ -225,6 +226,7 @@ addEventListener('keyup', ({ keyCode }) => {
 });
 
 animate();
+
 
 
 
