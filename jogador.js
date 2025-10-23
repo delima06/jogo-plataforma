@@ -123,7 +123,7 @@ function animate() {
             player.position.y + player.height + player.velocity.y >= platform.position.y &&
             player.position.x + player.width >= platform.position.x &&
             player.position.x <= platform.position.x + platform.width) {
-            console.log('SUBIU');
+           // console.log('SUBIU');
             player.velocity.y = 0;
         }
         //Eduardo > COLISÃO DE BAIXO PRA CIMA, PRA NÃO ATRAVESSAR A PLATAFORMA SE TIVER SUBINDO E EMBAIXO DAS PLATAFORMAS
@@ -132,7 +132,7 @@ function animate() {
             player.position.x + player.velocity.x + player.width >= platform.position.x &&
             player.position.x <= platform.position.x + platform.width &&
             player.velocity.y < 0) {
-            console.log('TESTE COLISAO');
+           // console.log('TESTE COLISAO');
             player.velocity.y = 0;
         }
         platform.draw();
@@ -215,6 +215,7 @@ addEventListener('keyup', ({ keyCode }) => {
     }
 
 });
+
 
 
 
