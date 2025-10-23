@@ -126,7 +126,7 @@ function animate() {
             console.log('SUBIU');
             player.velocity.y = 0;
         }
-        //COLISÃO DE BAIXO PRA CIMA, PRA NÃO ATRAVESSAR A PLATAFORMA SE TIVER SUBINDO E EMBAIXO DAS PLATAFORMAS
+        //Eduardo > COLISÃO DE BAIXO PRA CIMA, PRA NÃO ATRAVESSAR A PLATAFORMA SE TIVER SUBINDO E EMBAIXO DAS PLATAFORMAS
         if (player.position.y >= platform.position.y + platform.height &&
             player.position.y + player.velocity.y <= platform.height + platform.position.y &&
             player.position.x + player.velocity.x + player.width >= platform.position.x &&
@@ -146,26 +146,27 @@ function animate() {
             projectiles.splice(i, 1);
         }
     }
-}
-if (keys.right.pressed && player.position.x < 400) {
-    player.velocity.x = 5;
+    //Eduardo > aqui tava embaixo do animate, aí n tava scrollando, so subi e ta funcionando
+    if (keys.right.pressed && player.position.x < 400) {
+        player.velocity.x = 5;
 
-} else if (keys.left.pressed && player.position.x > 100) {
-    player.velocity.x = -5;
-} else {
-    player.velocity.x = 0;
-}
-
-if (keys.right.pressed) {
-    platforms.forEach(platform => {
-        platform.position.x -= 5;
-    });
-
-} else if (keys.left.pressed) {
-    platforms.forEach(platform => {
-        platform.position.x += 5;
+    } else if (keys.left.pressed && player.position.x > 100) {
+        player.velocity.x = -5;
+    } else {
+        player.velocity.x = 0;
     }
-    );
+
+    if (keys.right.pressed) {
+        platforms.forEach(platform => {
+            platform.position.x -= 5;
+        });
+
+    } else if (keys.left.pressed) {
+        platforms.forEach(platform => {
+            platform.position.x += 5;
+        }
+        );
+    }
 }
 
 
