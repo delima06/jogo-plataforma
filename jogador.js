@@ -1,4 +1,4 @@
-const canvas = document.querySelector('canvas'); 
+const canvas = document.querySelector('canvas');
 const ctx = canvas.getContext('2d');
 
 canvas.width = window.innerWidth;
@@ -10,11 +10,11 @@ class Player {
     constructor() {
         this.position = {
             x: 100,
-            y:100
+            y: 100
         };
-        this.velocity ={
-            x:0,
-            y:1
+        this.velocity = {
+            x: 0,
+            y: 1
         }
         this.width = 30;
         this.height = 30;
@@ -22,17 +22,17 @@ class Player {
     draw() {
         ctx.fillStyle = 'blue';
         ctx.fillRect(this.position.x, this.position.y, this.width, this.height);
-    }      
+    }
     update() {
         this.draw();
         this.position.x += this.velocity.x;
         this.position.y += this.velocity.y;
-        if (this.position.y + this.height + this.velocity.y <= canvas.height) { 
-        this.velocity.y += gravidade;
+        if (this.position.y + this.height + this.velocity.y <= canvas.height) {
+            this.velocity.y += gravidade;
         } else {
             this.velocity.y = 0;
         }
-}
+    }
 }
 
 // ...existing code...
@@ -49,22 +49,22 @@ class Platform {
     }
 }
 const player = new Player();
-const platforms = [ new Platform(400, 300, 200, 20),
-                    new Platform(700, 500, 200, 20),
-                    new Platform(900, 400, 200, 20),
-                    new Platform(1200, 350, 200, 20),
-                    new Platform(1500, 450, 200, 20)    
-                ];
- 
+const platforms = [new Platform(400, 300, 200, 20),
+new Platform(700, 500, 200, 20),
+new Platform(900, 400, 200, 20),
+new Platform(1200, 350, 200, 20),
+new Platform(1500, 450, 200, 20)
+];
+
 
 
 player.update(ctx);
 const keys = {
     right: {
-        pressed: false  
+        pressed: false
     },
     left: {
-        pressed: false  
+        pressed: false
     }
 }
 
@@ -118,7 +118,23 @@ function animate() {
     requestAnimationFrame(animate);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     player.update();
-    platforms.forEach(platform => {
+    platforms.forEach(platform => { // Eduardo > movi a parte de colisão da plataforma pra cá, não tava funcionando pq faltava o platform.draw dnv depois
+        if (player.position.y + player.height <= platform.position.y &&
+            player.position.y + player.height + player.velocity.y >= platform.position.y &&
+            player.position.x + player.width >= platform.position.x &&
+            player.position.x <= platform.position.x + platform.width) {
+            console.log('SUBIU');
+            player.velocity.y = 0;
+        }
+        //COLISÃO DE BAIXO PRA CIMA, PRA NÃO ATRAVESSAR A PLATAFORMA SE TIVER SUBINDO E EMBAIXO DAS PLATAFORMAS
+        if (player.position.y >= platform.position.y + platform.height &&
+            player.position.y + player.velocity.y <= platform.height + platform.position.y &&
+            player.position.x + player.velocity.x + player.width >= platform.position.x &&
+            player.position.x <= platform.position.x + platform.width &&
+            player.velocity.y < 0) {
+            console.log('TESTE COLISAO');
+            player.velocity.y = 0;
+        }
         platform.draw();
     });
 
@@ -131,46 +147,41 @@ function animate() {
         }
     }
 }
-    if (keys.right.pressed && player.position.x < 400) {
-         player.velocity.x = 5;
-    
-    } else if (keys.left.pressed && player.position.x > 100) {
-        player.velocity.x = -5;
-    } else {
-        player.velocity.x = 0;
-    }
+if (keys.right.pressed && player.position.x < 400) {
+    player.velocity.x = 5;
 
-    if (keys.right.pressed) {
-         platforms.forEach(platform => {
-            platform.position.x -= 5;
-        });
+} else if (keys.left.pressed && player.position.x > 100) {
+    player.velocity.x = -5;
+} else {
+    player.velocity.x = 0;
+}
 
-    } else if (keys.left.pressed) {
-            platforms.forEach(platform => {
-            platform.position.x += 5;
+if (keys.right.pressed) {
+    platforms.forEach(platform => {
+        platform.position.x -= 5;
+    });
+
+} else if (keys.left.pressed) {
+    platforms.forEach(platform => {
+        platform.position.x += 5;
     }
     );
-    }
+}
 
 
 
-        // Plataforma colisão
-         platforms.forEach(platform => {
-        
-    if (player.position.y + player.height <= platform.position.y &&
-        player.position.y + player.height + player.velocity.y >= platform.position.y &&
-        player.position.x + player.width >= platform.position.x &&
-        player.position.x <= platform.position.x + platform.width) {
-            player.velocity.y = 0;
-    }
-});
+// Plataforma colisão
+//platforms.forEach(platform => {
+
+
+;
 
 
 
 animate();
-addEventListener('keydown', ({keyCode}) => {
-   
-   console.log(keyCode);
+addEventListener('keydown', ({ keyCode }) => {
+
+    // console.log(keyCode);
     switch (keyCode) {
         case 65: // left arrow
             player.velocity.x = -5;
@@ -179,18 +190,18 @@ addEventListener('keydown', ({keyCode}) => {
         case 68: // right arrow
             player.velocity.x = 5;
             keys.right.pressed = true;
-            break;      
+            break;
         case 87: // up arrow
             player.velocity.y = -20;
-            break;      
+            break;
         case 83: // down arrow
             player.velocity.y = 5;
-            break;      
-    }   
-    console.log(player.velocity.x, player.velocity.y);
+            break;
+    }
+    //console.log(player.velocity.x, player.velocity.y);
 });
 
-addEventListener('keyup', ({keyCode}) => {
+addEventListener('keyup', ({ keyCode }) => {
     switch (keyCode) {
         case 65: // left arrow
             player.velocity.x = 0;
@@ -199,8 +210,8 @@ addEventListener('keyup', ({keyCode}) => {
         case 68: // right arrow
             player.velocity.x = 0;
             keys.right.pressed = false;
-            break;      
-    }    
+            break;
+    }
 
 });
 
