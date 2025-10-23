@@ -4,7 +4,9 @@ const ctx = canvas.getContext('2d');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-const gravidade = 1;
+let isOnGround = true;
+
+const gravidade = 0.3;
 
 class Player {
     constructor() {
@@ -14,7 +16,7 @@ class Player {
         };
         this.velocity = {
             x: 0,
-            y: 1
+            y: 0,
         }
         this.width = 30;
         this.height = 30;
@@ -31,6 +33,7 @@ class Player {
             this.velocity.y += gravidade;
         } else {
             this.velocity.y = 0;
+            isOnGround = true;
         }
     }
 }
@@ -117,14 +120,15 @@ window.addEventListener('keydown', (e) => {
 function animate() {
     requestAnimationFrame(animate);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    player.update();
     platforms.forEach(platform => { // Eduardo > movi a parte de colisão da plataforma pra cá, não tava funcionando pq faltava o platform.draw dnv depois
+        platform.draw();
         if (player.position.y + player.height <= platform.position.y &&
             player.position.y + player.height + player.velocity.y >= platform.position.y &&
             player.position.x + player.width >= platform.position.x &&
             player.position.x <= platform.position.x + platform.width) {
-            console.log('SUBIU');
+            // console.log('SUBIU');
             player.velocity.y = 0;
+            isOnGround = true;
         }
         //Eduardo > COLISÃO DE BAIXO PRA CIMA, PRA NÃO ATRAVESSAR A PLATAFORMA SE TIVER SUBINDO E EMBAIXO DAS PLATAFORMAS
         if (player.position.y >= platform.position.y + platform.height &&
@@ -132,10 +136,9 @@ function animate() {
             player.position.x + player.velocity.x + player.width >= platform.position.x &&
             player.position.x <= platform.position.x + platform.width &&
             player.velocity.y < 0) {
-            console.log('TESTE COLISAO');
+            //  console.log('TESTE COLISAO');
             player.velocity.y = 0;
         }
-        platform.draw();
     });
 
     for (let i = projectiles.length - 1; i >= 0; i--) {
@@ -167,6 +170,8 @@ function animate() {
         }
         );
     }
+    player.update();
+
 }
 
 
@@ -179,7 +184,6 @@ function animate() {
 
 
 
-animate();
 addEventListener('keydown', ({ keyCode }) => {
 
     // console.log(keyCode);
@@ -193,11 +197,15 @@ addEventListener('keydown', ({ keyCode }) => {
             keys.right.pressed = true;
             break;
         case 87: // up arrow
-            player.velocity.y = -20;
-            break;
-        case 83: // down arrow
-            player.velocity.y = 5;
-            break;
+            if (isOnGround) // EVITAR VOAR / DOUBLE JUMP
+            {
+                player.velocity.y = -20;
+                isOnGround = false;
+                break;
+            }
+        // case 83: // down arrow ------------------------------------------------- TAVA BUGANDO SE APERTASSE E SEGURASSE PRA PULAR (W), NAO SEI PQ
+        //  player.velocity.y = 5;
+        // break;
     }
     //console.log(player.velocity.x, player.velocity.y);
 });
@@ -216,6 +224,7 @@ addEventListener('keyup', ({ keyCode }) => {
 
 });
 
+animate();
 
 
 
