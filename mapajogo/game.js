@@ -4,6 +4,25 @@ const ctx = canvas.getContext('2d');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
+const enemyImages = {
+    type1: new Image(),
+    type2: new Image(),
+    type3: new Image()
+};
+
+// ADICIONE ESTES LISTENERS PARA DEBUG
+enemyImages.type1.onload = () => console.log('✅ enemyImages.type1 carregada');
+enemyImages.type2.onload = () => console.log('✅ enemyImages.type2 carregada');
+enemyImages.type3.onload = () => console.log('✅ enemyImages.type3 carregada');
+
+enemyImages.type1.onerror = () => console.error('❌ Erro ao carregar type1');
+enemyImages.type2.onerror = () => console.error('❌ Erro ao carregar type2');
+enemyImages.type3.onerror = () => console.error('❌ Erro ao carregar type3');
+
+enemyImages.type1.src = 'assets/1zumbitest.png';
+enemyImages.type2.src = 'assets/2zumbitest.png';
+enemyImages.type3.src = 'assets/3zumbitest.png';
+
 // Variáveis globais
 let scrollOffset = 0;
 let currentPhase = 1;
@@ -86,27 +105,27 @@ function initializeEnemies() {
     
     // FASE 1 - 4 inimigos
     const p1 = platforms[0], p2 = platforms[1];
-    enemies.push(new Enemy1(p1.position.x + 100, p1.position.x + p1.width - 100, p1.position.x + 200, 40, 40, "green", 1.5));
-    enemies.push(new Enemy1(p2.position.x + 50, p2.position.x + p2.width - 50, p2.position.x + 100, 40, 40, "darkgreen", 2.0));
-    enemies.push(new Enemy2(p1.position.x + 500, 400, 600, 30, 30, "purple", 2.0));
-    enemies.push(new Enemy2(p1.position.x + 800, 450, 550, 25, 25, "pink", 2.5));
+    enemies.push(new Enemy1(p1.position.x + 100, p1.position.x + p1.width - 100, p1.position.x + 200, 150, 150, "green", 1.5, enemyImages.type1));
+    enemies.push(new Enemy1(p2.position.x + 50, p2.position.x + p2.width - 50, p2.position.x + 100, 150, 150, "darkgreen", 2.0, enemyImages.type1));
+    enemies.push(new Enemy2(p1.position.x + 500, 400, 600, 100, 100, "purple", 2.0, enemyImages.type2));
+    enemies.push(new Enemy2(p1.position.x + 800, 450, 550, 100, 100, "pink", 2.5, enemyImages.type2));
     
     // FASE 2 - 5 inimigos
     const p3 = platforms[2], p4 = platforms[3];
-    enemies.push(new Enemy1(p3.position.x + 150, p3.position.x + p3.width - 150, p3.position.x + 300, 40, 40, "orange", 1.8));
-    enemies.push(new Enemy2(p3.position.x + 800, 350, 550, 35, 35, "magenta", 2.2));
-    enemies.push(new Enemy3(p4, 1, 35, 35, "blue", 90, -12, 5, 0.5));
-    enemies.push(new Enemy3(p4, -1, 35, 35, "cyan", 100, -11, 4, 0.5));
-    enemies.push(new Enemy2(p3.position.x + 1200, 300, 500, 30, 30, "red", 2.0));
+    enemies.push(new Enemy1(p3.position.x + 150, p3.position.x + p3.width - 150, p3.position.x + 300, 150, 150, "orange", 1.8, enemyImages.type1));
+    enemies.push(new Enemy2(p3.position.x + 800, 350, 550, 150, 150, "magenta", 2.2, enemyImages.type2));
+    enemies.push(new Enemy3(p4, 1, 150, 150, "blue", 90, -12, 5, 0.5, enemyImages.type3));
+    enemies.push(new Enemy3(p4, -1, 150, 150, "cyan", 100, -11, 4, 0.5, enemyImages.type3));
+    enemies.push(new Enemy2(p3.position.x + 1200, 300, 500, 30, 30, "red", 2.0, enemyImages.type2));
     
     // FASE 4 - 6 inimigos
     const p5 = platforms[4], p6 = platforms[5];
-    enemies.push(new Enemy1(p5.position.x + 200, p5.position.x + p5.width - 200, p5.position.x + 400, 45, 45, "red", 2.2));
-    enemies.push(new Enemy2(p5.position.x + 1000, 300, 500, 40, 40, "darkred", 2.5));
-    enemies.push(new Enemy3(p6, -1, 40, 40, "darkblue", 80, -14, 6, 0.5));
-    enemies.push(new Enemy3(p6, 1, 40, 40, "cyan", 70, -13, 5.5, 0.5));
-    enemies.push(new Enemy1(p5.position.x + 600, p5.position.x + p5.width - 600, p5.position.x + 800, 42, 42, "maroon", 2.0));
-    enemies.push(new Enemy2(p5.position.x + 1400, 250, 450, 38, 38, "orange", 2.8));
+    enemies.push(new Enemy1(p5.position.x + 200, p5.position.x + p5.width - 200, p5.position.x + 400, 150, 150, "red", 2.2, enemyImages.type1));
+    enemies.push(new Enemy2(p5.position.x + 1000, 300, 500, 150, 150, "darkred", 2.5, enemyImages.type2));
+    enemies.push(new Enemy3(p6, -1, 150, 150, "darkblue", 80, -14, 6, 0.5, enemyImages.type3));
+    enemies.push(new Enemy3(p6, 1, 150, 150, "cyan", 70, -13, 5.5, 0.5, enemyImages.type3));
+    enemies.push(new Enemy1(p5.position.x + 600, p5.position.x + p5.width - 600, p5.position.x + 800, 150, 150, "maroon", 2.0, enemyImages.type1));
+    enemies.push(new Enemy2(p5.position.x + 1400, 250, 450, 150, 150, "orange", 2.8, enemyImages.type2));
 
     positionEnemiesOnPlatforms();
 }
@@ -338,8 +357,18 @@ function animate() {
 // Iniciar
 window.addEventListener('load', () => {
     player.position.x = 100;
-    initializeEnemies();
-    animate();
+    
+    // Espera um pouco para garantir que as imagens carreguem
+    setTimeout(() => {
+        initializeEnemies();
+        animate();
+        console.log('🎮 Jogo iniciado!');
+        
+        // Debug: verifica status das imagens
+        console.log('type1 status:', enemyImages.type1.complete, enemyImages.type1.naturalWidth);
+        console.log('type2 status:', enemyImages.type2.complete, enemyImages.type2.naturalWidth);
+        console.log('type3 status:', enemyImages.type3.complete, enemyImages.type3.naturalWidth);
+    }, 500);
 });
 
 window.addEventListener('resize', () => {

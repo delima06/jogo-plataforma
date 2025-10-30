@@ -1,5 +1,6 @@
+
 class Enemy1 {
-    constructor(leftLimit, rightLimit, xStart = null, width = 40, height = 40, color = "green", speed = 1.5) {
+    constructor(leftLimit, rightLimit, xStart = null, width = 500, height = 500, color = "green", speed = 1.5, image = null) {
         this.width = width;
         this.height = height;
         this.color = color;
@@ -11,6 +12,7 @@ class Enemy1 {
         };
         this.velocity = { x: speed, y: 0 };
         this.type = 1;
+        this.image = image;
     }
 
     update(platforms) {
@@ -25,9 +27,26 @@ class Enemy1 {
     }
 
     draw(ctx, scrollOffset) {
+    // Tenta desenhar a imagem
+    if (this.image && this.image.complete && this.image.naturalWidth > 0) {
+        ctx.drawImage(
+            this.image, 
+            this.position.x + scrollOffset, 
+            this.position.y, 
+            this.width, 
+            this.height
+        );
+    } else {
+        // Fallback: desenha o retângulo colorido
         ctx.fillStyle = this.color;
         ctx.fillRect(this.position.x + scrollOffset, this.position.y, this.width, this.height);
+        
+        // Debug: mostra se está carregando
+        ctx.fillStyle = 'white';
+        ctx.font = '8px Arial';
+        ctx.fillText('img?', this.position.x + scrollOffset + 5, this.position.y + 15);
     }
+}
 
     collidesWithPlayer(player, scrollOffset) {
         const sx = this.position.x + scrollOffset;
@@ -39,7 +58,7 @@ class Enemy1 {
 }
 
 class Enemy2 {
-    constructor(xPosition, yMin = 400, yMax = 600, width = 30, height = 30, color = "purple", speed = 1.5) {
+    constructor(xPosition, yMin = 400, yMax = 600, width = 500, height = 500, color = "purple", speed = 1.5, image = null) {
         this.width = width;
         this.height = height;
         this.color = color;
@@ -51,6 +70,7 @@ class Enemy2 {
         };
         this.velocity = { x: 0, y: speed * (Math.random() > 0.5 ? 1 : -1) };
         this.type = 2;
+        this.image = image;
     }
 
     update(platforms) {
@@ -65,9 +85,26 @@ class Enemy2 {
     }
 
     draw(ctx, scrollOffset) {
+    // Tenta desenhar a imagem
+    if (this.image && this.image.complete && this.image.naturalWidth > 0) {
+        ctx.drawImage(
+            this.image, 
+            this.position.x + scrollOffset, 
+            this.position.y, 
+            this.width, 
+            this.height
+        );
+    } else {
+        // Fallback: desenha o retângulo colorido
         ctx.fillStyle = this.color;
         ctx.fillRect(this.position.x + scrollOffset, this.position.y, this.width, this.height);
+        
+        // Debug: mostra se está carregando
+        ctx.fillStyle = 'white';
+        ctx.font = '8px Arial';
+        ctx.fillText('img?', this.position.x + scrollOffset + 5, this.position.y + 15);
     }
+}
 
     collidesWithPlayer(player, scrollOffset) {
         const sx = this.position.x + scrollOffset;
@@ -79,7 +116,7 @@ class Enemy2 {
 }
 
 class Enemy3 {
-    constructor(startPlatform, direction = 1, width = 35, height = 35, color = "blue", jumpIntervalFrames = 120, jumpStrength = -10, jumpSpeed = 4, gravity = 0.5) {
+    constructor(startPlatform, direction = 1, width = 35, height = 35, color = "blue", jumpIntervalFrames = 120, jumpStrength = -10, jumpSpeed = 4, gravity = 0.5, image = null) {
         this.width = width;
         this.height = height;
         this.color = color;
@@ -96,6 +133,7 @@ class Enemy3 {
         this.gravity = gravity;
         this.isOnGround = true;
         this.type = 3;
+        this.image = image;
     }
 
     update(platforms) {
@@ -131,9 +169,26 @@ class Enemy3 {
     }
 
     draw(ctx, scrollOffset) {
+    // Tenta desenhar a imagem
+    if (this.image && this.image.complete && this.image.naturalWidth > 0) {
+        ctx.drawImage(
+            this.image, 
+            this.position.x + scrollOffset, 
+            this.position.y, 
+            this.width, 
+            this.height
+        );
+    } else {
+        // Fallback: desenha o retângulo colorido
         ctx.fillStyle = this.color;
         ctx.fillRect(this.position.x + scrollOffset, this.position.y, this.width, this.height);
+        
+        // Debug: mostra se está carregando
+        ctx.fillStyle = 'white';
+        ctx.font = '8px Arial';
+        ctx.fillText('img?', this.position.x + scrollOffset + 5, this.position.y + 15);
     }
+}
 
     collidesWithPlayer(player, scrollOffset) {
         const sx = this.position.x + scrollOffset;
