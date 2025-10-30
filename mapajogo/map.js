@@ -31,7 +31,7 @@ class Projectile {
         this.position = { x, y };
         this.velocity = { x: vx, y: 0 };
         this.radius = 6;
-        this.color = 'red';
+        this.color = 'black';
     }
     update() { this.position.x += this.velocity.x; }
     draw() {
