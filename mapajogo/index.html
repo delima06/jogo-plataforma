@@ -1,19 +1,28 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mapa Expandido - 4 Fases</title>
+    <title>Jogo de Plataforma</title>
     <style>
-        body {
+        * {
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
             overflow: hidden;
+            font-family: Arial, sans-serif;
             background: #000;
         }
-        canvas {
+
+        #gameCanvas {
             display: block;
+            position: relative;
+            z-index: 1;
         }
+
         .background {
             position: fixed;
             top: 0;
@@ -22,32 +31,28 @@
             height: 100%;
             background-size: cover;
             background-position: center;
+            background-repeat: no-repeat;
             transition: opacity 1s ease-in-out;
             opacity: 0;
-            z-index: -1;
+            z-index: 0;
         }
+
         .background.active {
             opacity: 1;
         }
-        
-        /* CAMINHOS DAS IMAGENS */
-        #bg1 { background-image: url('./assets/fase1.png'); }
-        #bg2 { background-image: url('./assets/fase2.png'); }
-        #bg3 { background-image: url('./assets/fase3.png'); }
-        #bg4 { background-image: url('./assets/fase4.png'); }
-        
-        .ui-info {
-            position: fixed;
-            top: 10px;
-            left: 10px;
-            color: white;
-            background: rgba(0,0,0,0.7);
-            padding: 10px;
-            border-radius: 5px;
-            z-index: 100;
-            font-family: Arial, sans-serif;
+
+        #bg1 {
+            background-image: url('./assets/fase1.png');
         }
-        
+
+        #bg2 {
+            background-image: url('./assets/fase2.png');
+        }
+
+        #bg4 {
+            background-image: url('./assets/fase4.png');
+        }
+
         .phase-name {
             position: fixed;
             top: 50%;
@@ -61,33 +66,36 @@
             opacity: 0;
             transition: opacity 0.5s ease;
             z-index: 100;
+            text-align: center;
+            pointer-events: none;
         }
-        
+
         .phase-name.show {
             opacity: 1;
         }
+
+        /* Fallback se as imagens não carregarem */
+        #bg1 { background-color: #228B22; }
+        #bg2 { background-color: #8B4513; }
+        #bg4 { background-color: #2F4F4F; }
     </style>
 </head>
 <body>
-    <!-- Backgrounds das fases -->
+    <!-- Backgrounds PRIMEIRO (z-index mais baixo) -->
     <div id="bg1" class="background active"></div>
     <div id="bg2" class="background"></div>
-    <div id="bg3" class="background"></div>
     <div id="bg4" class="background"></div>
     
-    <!-- Nome da fase -->
-    <div id="phaseName" class="phase-name"></div>
-    
+    <!-- Canvas DEPOIS (z-index mais alto) -->
     <canvas id="gameCanvas"></canvas>
     
-    <div class="ui-info">
-        <div>Fase: <span id="currentPhase">1</span> - <span id="phaseNameText">Floresta Inicial</span></div>
-        <div>Scroll X: <span id="scrollX">0</span></div>
-        <div>Plataformas: <span id="platformCount">0</span></div>
-        <div>Progresso: <span id="progress">0%</span></div>
-    </div>
-    
+    <!-- Phase name display (z-index mais alto ainda) -->
+    <div id="phaseName" class="phase-name"></div>
+
+    <!-- Scripts na ordem correta -->
+    <script src="map.js"></script>
+    <script src="player.js"></script>
+    <script src="enemy.js"></script>
     <script src="game.js"></script>
-    
 </body>
 </html>

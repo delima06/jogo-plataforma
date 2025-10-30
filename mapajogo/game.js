@@ -1,136 +1,59 @@
+// Canvas setup
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
-
-// Configuração do canvas
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-// Variáveis do mapa
+// Variáveis globais
 let scrollOffset = 0;
 let currentPhase = 1;
 let isOnGround = true;
 const gravidade = 1;
-
-// VELOCIDADE DO MAPA 2x MAIS RÁPIDO
 const MAP_SPEED_MULTIPLIER = 2.0;
 
-// Configuração das fases REDUZIDAS - APENAS 3 FASES
+// Sistema de vida do player
+let playerLives = 3;
+let isInvulnerable = false;
+let invulnerabilityTimer = 0;
+const INVULNERABILITY_TIME = 60;
+
+// Estados do jogo
+let gameCompleted = false;
+let gameOverState = false;
+
+// Configuração das fases
 const phaseConfig = {
     1: { bg: 'bg1', startX: 0, endX: 2000, name: "Ponte velha", color: '#8B4513' },
     2: { bg: 'bg2', startX: 2000, endX: 4000, name: "Morro do careca", color: '#A0522D' },
     4: { bg: 'bg4', startX: 4000, endX: 6000, name: "Newton Navarro", color: '#CD853F' }
 };
 
-const TOTAL_MAP_WIDTH = 6000; // MAPA REDUZIDO
-
-// Variável para controlar se o jogo foi finalizado
-let gameCompleted = false;
-
-// Carregar imagem de vitória
+// Carregar imagens
 const victoryImage = new Image();
-victoryImage.src = 'assets/final.jpg';
+victoryImage.src = 'assets/vitoria.png';
 let victoryImageLoaded = false;
+
+const gameOverImage = new Image();
+gameOverImage.src = 'assets/morte.png';
+let gameOverImageLoaded = false;
 
 victoryImage.onload = function() {
     victoryImageLoaded = true;
     console.log('🎉 Imagem de vitória carregada com sucesso!');
 };
 
-victoryImage.onerror = function() {
-    console.log('❌ Erro ao carregar imagem de vitória. Usando fallback.');
-    victoryImageLoaded = false;
+gameOverImage.onload = function() {
+    gameOverImageLoaded = true;
+    console.log('💀 Imagem de game over carregada com sucesso!');
 };
 
-// PLAYER TRAVADO NA ESQUERDA
-class Player {
-    constructor() {
-        // Player sempre na mesma posição X (esquerda da tela)
-        this.position = {
-            x: 100, // Posição fixa na esquerda
-            y: 100
-        };
-        this.velocity = {
-            x: 0,
-            y: 1
-        }
-        this.width = 30;
-        this.height = 30;
-        this.facing = 1;
-    }
-    draw() {
-        ctx.fillStyle = 'blue';
-        ctx.fillRect(this.position.x, this.position.y, this.width, this.height);
-    }
-    update() {
-        this.draw();
-        this.position.y += this.velocity.y;
-        
-        // Player não se move horizontalmente - posição X é fixa
-        // Apenas movimento vertical (pulo e gravidade)
-        
-        if (this.position.y + this.height + this.velocity.y <= canvas.height) {
-            this.velocity.y += gravidade;
-        } else {
-            this.velocity.y = 0;
-            isOnGround = true;
-        }
-    }
-}
-
-// Classe Platform 
-class Platform {
-    constructor(x, y, width = 200, height = 20, color = '#8B4513', type = 'normal') {
-        this.position = { x, y };
-        this.width = width;
-        this.height = height;
-        this.color = color;
-        this.type = type;
-    }
-    
-    draw() {
-        const screenX = this.position.x + scrollOffset;
-        
-        ctx.fillStyle = this.color;
-        ctx.fillRect(screenX, this.position.y, this.width, this.height);
-        
-        if (this.type === 'base') {
-            ctx.fillStyle = '#654321';
-            ctx.fillRect(screenX, this.position.y, this.width, 5);
-            ctx.strokeStyle = '#3D2812';
-            ctx.lineWidth = 3;
-            ctx.strokeRect(screenX, this.position.y, this.width, this.height);
-        } else if (this.type === 'final') {
-            ctx.strokeStyle = '#DAA520';
-            ctx.lineWidth = 3;
-            ctx.setLineDash([10, 5]);
-            ctx.strokeRect(screenX, this.position.y, this.width, this.height);
-            ctx.setLineDash([]);
-        } else {
-            ctx.strokeStyle = '#3D2812';
-            ctx.lineWidth = 2;
-            ctx.strokeRect(screenX, this.position.y, this.width, this.height);
-        }
-    }
-}
-
-// Array de plataformas REDUZIDO - APENAS 2 PLATAFORMAS POR FASE
+// Array de plataformas
 const platforms = [
-    // === FASE 1 - FLORESTA (0-2000) ===
-    // 1. Plataforma gigante em Y = 740
     new Platform(-1, 740, 2000, 40, 'red', 'base'),
-    // 2. Plataforma no meio da fase
     new Platform(600, 500, 800, 20, 'brown'),
-
-    // === FASE 2 - CAVERNA (2000-4000) ===
-    // 1. Plataforma gigante em Y = 740
     new Platform(1999, 740, 2000, 40, 'red', 'base'),
-    // 2. Plataforma no meio da fase
     new Platform(2400, 500, 800, 20, 'brown'),
-
-    // === FASE 4 - CASTELO (4000-6000) ===
-    // 1. Plataforma gigante em Y = 740
     new Platform(3999, 740, 2001, 40, 'red', 'final'),
-    // 2. Plataforma no meio da fase
     new Platform(4400, 500, 800, 20, 'brown')
 ];
 
@@ -139,25 +62,14 @@ let projectiles = [];
 let lastShotTime = 0;
 const shotCooldown = 100;
 
-class Projectile {
-    constructor(x, y, vx = 12) {
-        this.position = { x, y };
-        this.velocity = { x: vx, y: 0 };
-        this.radius = 6;
-        this.color = 'red';
-    }
-    update() {
-        this.position.x += this.velocity.x;
-    }
-    draw() {
-        ctx.beginPath();
-        ctx.fillStyle = this.color;
-        ctx.arc(this.position.x, this.position.y, this.radius, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.closePath();
-    }
-}
+// Array de inimigos
+let enemies = [];
 
+// Controles
+const keys = { right: { pressed: false }, left: { pressed: false } };
+const player = new Player();
+
+// Funções do jogo
 function shootHorizontal(dir = 1) {
     const now = Date.now();
     if (now - lastShotTime < shotCooldown) return;
@@ -169,62 +81,74 @@ function shootHorizontal(dir = 1) {
     projectiles.push(new Projectile(startX, startY, speed));
 }
 
-// Controles
-const keys = {
-    right: { pressed: false },
-    left: { pressed: false }
-};
-
-// Instanciar player
-const player = new Player();
-
-// SISTEMA DE CÂMERA - PLAYER TRAVADO NA ESQUERDA, MAPA SE MOVE PARA DIREITA
-function updateCamera() {
-    // MOVIMENTO DO MAPA - sempre se move para a direita quando player se move
-    if (keys.right.pressed) {
-        // Mapa se move para ESQUERDA (mostrando mais à direita)
-        scrollOffset -= 5 * MAP_SPEED_MULTIPLIER;
-    }
-    if (keys.left.pressed) {
-        // Mapa se move para DIREITA (mostrando mais à esquerda)
-        scrollOffset += 5 * MAP_SPEED_MULTIPLIER;
-    }
+function initializeEnemies() {
+    enemies = [];
     
-    // SEM LIMITE DO MAPA - player pode navegar livremente
-    // Player sempre na mesma posição X (travado na esquerda)
-    player.position.x = 100; // Posição fixa
+    // FASE 1 - 4 inimigos
+    const p1 = platforms[0], p2 = platforms[1];
+    enemies.push(new Enemy1(p1.position.x + 100, p1.position.x + p1.width - 100, p1.position.x + 200, 40, 40, "green", 1.5));
+    enemies.push(new Enemy1(p2.position.x + 50, p2.position.x + p2.width - 50, p2.position.x + 100, 40, 40, "darkgreen", 2.0));
+    enemies.push(new Enemy2(p1.position.x + 500, 400, 600, 30, 30, "purple", 2.0));
+    enemies.push(new Enemy2(p1.position.x + 800, 450, 550, 25, 25, "pink", 2.5));
     
-    // SEM BARREIRA VERTICAL - player pode sair da tela livremente
+    // FASE 2 - 5 inimigos
+    const p3 = platforms[2], p4 = platforms[3];
+    enemies.push(new Enemy1(p3.position.x + 150, p3.position.x + p3.width - 150, p3.position.x + 300, 40, 40, "orange", 1.8));
+    enemies.push(new Enemy2(p3.position.x + 800, 350, 550, 35, 35, "magenta", 2.2));
+    enemies.push(new Enemy3(p4, 1, 35, 35, "blue", 90, -12, 5, 0.5));
+    enemies.push(new Enemy3(p4, -1, 35, 35, "cyan", 100, -11, 4, 0.5));
+    enemies.push(new Enemy2(p3.position.x + 1200, 300, 500, 30, 30, "red", 2.0));
+    
+    // FASE 4 - 6 inimigos
+    const p5 = platforms[4], p6 = platforms[5];
+    enemies.push(new Enemy1(p5.position.x + 200, p5.position.x + p5.width - 200, p5.position.x + 400, 45, 45, "red", 2.2));
+    enemies.push(new Enemy2(p5.position.x + 1000, 300, 500, 40, 40, "darkred", 2.5));
+    enemies.push(new Enemy3(p6, -1, 40, 40, "darkblue", 80, -14, 6, 0.5));
+    enemies.push(new Enemy3(p6, 1, 40, 40, "cyan", 70, -13, 5.5, 0.5));
+    enemies.push(new Enemy1(p5.position.x + 600, p5.position.x + p5.width - 600, p5.position.x + 800, 42, 42, "maroon", 2.0));
+    enemies.push(new Enemy2(p5.position.x + 1400, 250, 450, 38, 38, "orange", 2.8));
+
+    positionEnemiesOnPlatforms();
 }
 
-// Sistema de mudança de fase
+function positionEnemiesOnPlatforms() {
+    enemies.forEach(enemy => {
+        if (enemy.type === 1 || enemy.type === 3) {
+            let foundPlatform = false;
+            for (const platform of platforms) {
+                if (enemy.position.x >= platform.position.x && 
+                    enemy.position.x <= platform.position.x + platform.width) {
+                    enemy.position.y = platform.position.y - enemy.height;
+                    foundPlatform = true;
+                    break;
+                }
+            }
+            if (!foundPlatform) enemy.position.y = canvas.height - enemy.height - 40;
+        }
+    });
+}
+
+function updateCamera() {
+    if (keys.right.pressed) scrollOffset -= 5 * MAP_SPEED_MULTIPLIER;
+    if (keys.left.pressed) scrollOffset += 5 * MAP_SPEED_MULTIPLIER;
+    player.position.x = 100;
+}
+
 function updatePhase() {
     const playerWorldX = player.position.x - scrollOffset;
     let newPhase = currentPhase;
     
-    if (playerWorldX >= phaseConfig[2].startX && playerWorldX < phaseConfig[2].endX) {
-        newPhase = 2;
-    } else if (playerWorldX >= phaseConfig[4].startX && playerWorldX < phaseConfig[4].endX) {
-        newPhase = 4;
-    } else if (playerWorldX < phaseConfig[2].startX) {
-        newPhase = 1;
-    }
+    if (playerWorldX >= phaseConfig[2].startX && playerWorldX < phaseConfig[2].endX) newPhase = 2;
+    else if (playerWorldX >= phaseConfig[4].startX && playerWorldX < phaseConfig[4].endX) newPhase = 4;
+    else if (playerWorldX < phaseConfig[2].startX) newPhase = 1;
     
-    if (newPhase !== currentPhase) {
-        changePhase(newPhase);
-    }
+    if (newPhase !== currentPhase) changePhase(newPhase);
 }
 
 function changePhase(phaseNumber) {
-    document.querySelectorAll('.background').forEach(bg => {
-        bg.classList.remove('active');
-    });
-    
+    document.querySelectorAll('.background').forEach(bg => bg.classList.remove('active'));
     const currentBg = document.getElementById(phaseConfig[phaseNumber].bg);
-    if (currentBg) {
-        currentBg.classList.add('active');
-    }
-    
+    if (currentBg) currentBg.classList.add('active');
     showPhaseName(phaseConfig[phaseNumber].name);
     currentPhase = phaseNumber;
 }
@@ -238,141 +162,124 @@ function showPhaseName(phaseName) {
     }
 }
 
-// SISTEMA DE COLISÃO - Player travado, apenas colisão vertical
 function checkPlatformCollisions() {
     let onPlatform = false;
-    
     platforms.forEach(platform => {
-        const platformScreenX = platform.position.x + scrollOffset;
-        
-        // Colisão de cima para baixo (pousar na plataforma)
+        const screenX = platform.position.x + scrollOffset;
         if (player.position.y + player.height <= platform.position.y &&
             player.position.y + player.height + player.velocity.y >= platform.position.y &&
-            player.position.x + player.width >= platformScreenX &&
-            player.position.x <= platformScreenX + platform.width) {
-            
+            player.position.x + player.width >= screenX &&
+            player.position.x <= screenX + platform.width) {
             player.velocity.y = 0;
             player.position.y = platform.position.y - player.height;
             onPlatform = true;
         }
-        
-        // Colisão de baixo para cima (cabeça na plataforma)
-        if (player.position.y >= platform.position.y + platform.height &&
-            player.position.y + player.velocity.y <= platform.position.y + platform.height &&
-            player.position.x + player.width >= platformScreenX &&
-            player.position.x <= platformScreenX + platform.width &&
-            player.velocity.y < 0) {
-            
-            player.velocity.y = 0;
-        }
     });
-    
     isOnGround = onPlatform;
 }
 
-// WALLPAPER DE VITÓRIA COM IMAGEM
-function drawVictoryWallpaper() {
-    // Se a imagem foi carregada, desenha ela
-    if (victoryImageLoaded) {
-        // Calcula as dimensões para preencher a tela mantendo a proporção
-        const imgRatio = victoryImage.width / victoryImage.height;
-        const canvasRatio = canvas.width / canvas.height;
+function checkEnemyCollisions() {
+    for (let i = enemies.length - 1; i >= 0; i--) {
+        const enemy = enemies[i];
         
-        let drawWidth, drawHeight, offsetX, offsetY;
-        
-        if (imgRatio > canvasRatio) {
-            // Imagem mais larga que o canvas
-            drawWidth = canvas.width;
-            drawHeight = canvas.width / imgRatio;
-            offsetX = 0;
-            offsetY = (canvas.height - drawHeight) / 2;
-        } else {
-            // Imagem mais alta que o canvas
-            drawHeight = canvas.height;
-            drawWidth = canvas.height * imgRatio;
-            offsetX = (canvas.width - drawWidth) / 2;
-            offsetY = 0;
+        if (enemy.collidesWithPlayer(player, scrollOffset)) {
+            player.takeDamage();
+            enemies.splice(i, 1);
+            continue;
         }
         
-        ctx.drawImage(victoryImage, offsetX, offsetY, drawWidth, drawHeight);
-        
-        // Adiciona uma sobreposição escura para melhorar a legibilidade do texto
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+        for (let j = projectiles.length - 1; j >= 0; j--) {
+            const projectile = projectiles[j];
+            const sx = enemy.position.x + scrollOffset;
+            if (projectile.position.x + projectile.radius > sx &&
+                projectile.position.x - projectile.radius < sx + enemy.width &&
+                projectile.position.y + projectile.radius > enemy.position.y &&
+                projectile.position.y - projectile.radius < enemy.position.y + enemy.height) {
+                projectiles.splice(j, 1);
+                enemies.splice(i, 1);
+                break;
+            }
+        }
+    }
+}
+
+function drawHUD() {
+    // Desenhar vidas
+    ctx.fillStyle = 'white';
+    ctx.font = '20px Arial';
+    ctx.fillText(`Vidas: ${playerLives}`, 20, 30);
+    
+    // Desenhar corações
+    for (let i = 0; i < 3; i++) {
+        if (i < playerLives) {
+            ctx.fillStyle = 'red';
+        } else {
+            ctx.fillStyle = 'gray';
+        }
+        ctx.fillRect(120 + i * 25, 15, 20, 20);
+    }
+}
+
+function gameOver() {
+    gameOverState = true;
+    console.log("Game Over!");
+}
+
+function drawFullscreenImage(image, imageLoaded) {
+    if (imageLoaded) {
+        ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
-        
     } else {
-        // Fallback se a imagem não carregar
-        const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-        gradient.addColorStop(0, '#FFD700');
-        gradient.addColorStop(0.5, '#FFA500');
-        gradient.addColorStop(1, '#FF8C00');
-        ctx.fillStyle = gradient;
+        ctx.fillStyle = 'black';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
-    
-    // Texto sobre a imagem
-    ctx.fillStyle = '#FFFFFF';
-    ctx.font = 'bold 60px Arial';
-    ctx.textAlign = 'center';
-    ctx.fillText('🎉 PARABÉNS! 🎉', canvas.width / 2, canvas.height / 2 - 50);
-    
-    ctx.fillStyle = '#FFD700';
-    ctx.font = 'bold 36px Arial';
-    ctx.fillText('VOCÊ CHEGOU AO FINAL!', canvas.width / 2, canvas.height / 2 + 20);
+}
+
+function drawVictoryScreen() {
+    drawFullscreenImage(victoryImage, victoryImageLoaded);
     
     ctx.fillStyle = '#FFFFFF';
     ctx.font = '20px Arial';
     ctx.fillText('Pressione F5 para jogar novamente', canvas.width / 2, canvas.height - 50);
 }
 
-// EVENT LISTENERS - Apenas movimento vertical do player
-addEventListener('keydown', ({ keyCode }) => {
-    if (gameCompleted) return; // Bloqueia controles quando o jogo termina
+function drawGameOverScreen() {
+    drawFullscreenImage(gameOverImage, gameOverImageLoaded);
     
+    
+    ctx.fillStyle = '#CCCCCC';
+    ctx.font = '20px Arial';
+    ctx.fillText('Pressione F5 para tentar novamente', canvas.width / 2, canvas.height - 50);
+}
+
+// Event listeners
+addEventListener('keydown', ({ keyCode }) => {
+    if (gameCompleted || gameOverState) return;
     switch (keyCode) {
-        case 65: // A - left (move mapa para direita)
-            keys.left.pressed = true;
-            player.facing = -1;
-            break;
-        case 68: // D - right (move mapa para esquerda)
-            keys.right.pressed = true;
-            player.facing = 1;
-            break;
-        case 87: // W - up (pulo - único movimento do player)
-            if (isOnGround) {
-                player.velocity.y = -25;
-                isOnGround = false;
-            }
-            break;
+        case 65: keys.left.pressed = true; player.facing = -1; break;
+        case 68: keys.right.pressed = true; player.facing = 1; break;
+        case 87: if (isOnGround) { player.velocity.y = -25; isOnGround = false; } break;
     }
 });
 
 addEventListener('keyup', ({ keyCode }) => {
-    if (gameCompleted) return; // Bloqueia controles quando o jogo termina
-    
     switch (keyCode) {
-        case 65: // A - left
-            keys.left.pressed = false;
-            break;
-        case 68: // D - right
-            keys.right.pressed = false;
-            break;
+        case 65: keys.left.pressed = false; break;
+        case 68: keys.right.pressed = false; break;
     }
 });
 
-// Tiro com espaço
 window.addEventListener('keydown', (e) => {
-    if (gameCompleted) return; // Bloqueia tiros quando o jogo termina
-    
+    if (gameCompleted || gameOverState) return;
     if (e.code === 'Space' || e.keyCode === 32) {
         e.preventDefault();
         shootHorizontal(player.facing || 1);
     }
 });
 
-// Scroll com mouse
 canvas.addEventListener('wheel', (e) => {
-    if (gameCompleted) return; // Bloqueia scroll quando o jogo termina
+    if (gameCompleted || gameOverState) return;
     scrollOffset += e.deltaY * 0.5 * MAP_SPEED_MULTIPLIER;
 });
 
@@ -381,27 +288,35 @@ function animate() {
     requestAnimationFrame(animate);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
-    // Se o jogo foi completado, mostra apenas o wallpaper de vitória
     if (gameCompleted) {
-        drawVictoryWallpaper();
+        drawVictoryScreen();
         return;
     }
     
-    // Atualizar câmera (player travado, mapa se move)
-    updateCamera();
+    if (gameOverState) {
+        drawGameOverScreen();
+        return;
+    }
     
-    // Desenhar plataformas
-    platforms.forEach(platform => {
-        platform.draw();
+    // Atualizar invulnerabilidade
+    if (isInvulnerable) {
+        invulnerabilityTimer--;
+        if (invulnerabilityTimer <= 0) {
+            isInvulnerable = false;
+        }
+    }
+    
+    updateCamera();
+    platforms.forEach(platform => platform.draw());
+    enemies.forEach(enemy => {
+        enemy.update(platforms);
+        enemy.draw(ctx, scrollOffset);
     });
     
-    // Verificar colisões
     checkPlatformCollisions();
-    
-    // Atualizar player (apenas movimento vertical)
+    checkEnemyCollisions();
     player.update();
     
-    // Atualizar projéteis
     for (let i = projectiles.length - 1; i >= 0; i--) {
         const p = projectiles[i];
         p.update();
@@ -411,10 +326,9 @@ function animate() {
         }
     }
     
-    // Atualizar fase
+    drawHUD();
     updatePhase();
     
-    // Verificar se chegou ao final
     const playerWorldX = player.position.x - scrollOffset;
     if (currentPhase === 4 && playerWorldX >= 6000 - 50 && !gameCompleted) {
         gameCompleted = true;
@@ -423,13 +337,13 @@ function animate() {
 
 // Iniciar
 window.addEventListener('load', () => {
-    player.position.x = 100; // Posição fixa na esquerda
+    player.position.x = 100;
+    initializeEnemies();
     animate();
 });
 
 window.addEventListener('resize', () => {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
-    // Manter player na posição fixa após resize
     player.position.x = 100;
 });
