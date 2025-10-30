@@ -10,14 +10,13 @@ const enemyImages = {
     type3: new Image()
 };
 
-// ADICIONE ESTES LISTENERS PARA DEBUG
-enemyImages.type1.onload = () => console.log('✅ enemyImages.type1 carregada');
-enemyImages.type2.onload = () => console.log('✅ enemyImages.type2 carregada');
-enemyImages.type3.onload = () => console.log('✅ enemyImages.type3 carregada');
+enemyImages.type1.onload = () => console.log(' enemyImages.type1 carregada');
+enemyImages.type2.onload = () => console.log(' enemyImages.type2 carregada');
+enemyImages.type3.onload = () => console.log(' enemyImages.type3 carregada');
 
-enemyImages.type1.onerror = () => console.error('❌ Erro ao carregar type1');
-enemyImages.type2.onerror = () => console.error('❌ Erro ao carregar type2');
-enemyImages.type3.onerror = () => console.error('❌ Erro ao carregar type3');
+enemyImages.type1.onerror = () => console.error(' Erro ao carregar type1');
+enemyImages.type2.onerror = () => console.error(' Erro ao carregar type2');
+enemyImages.type3.onerror = () => console.error(' Erro ao carregar type3');
 
 enemyImages.type1.src = 'assets/1zumbitest.png';
 enemyImages.type2.src = 'assets/2zumbitest.png';
@@ -373,7 +372,7 @@ window.addEventListener('load', () => {
         animate();
         console.log('🎮 Jogo iniciado!');
         
-        // Debug: verifica status das imagens
+       
         console.log('type1 status:', enemyImages.type1.complete, enemyImages.type1.naturalWidth);
         console.log('type2 status:', enemyImages.type2.complete, enemyImages.type2.naturalWidth);
         console.log('type3 status:', enemyImages.type3.complete, enemyImages.type3.naturalWidth);

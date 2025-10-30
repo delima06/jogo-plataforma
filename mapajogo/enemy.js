@@ -37,11 +37,9 @@ class Enemy1 {
             this.height
         );
     } else {
-        // Fallback: desenha o retângulo colorido
         ctx.fillStyle = this.color;
         ctx.fillRect(this.position.x + scrollOffset, this.position.y, this.width, this.height);
         
-        // Debug: mostra se está carregando
         ctx.fillStyle = 'white';
         ctx.font = '8px Arial';
         ctx.fillText('img?', this.position.x + scrollOffset + 5, this.position.y + 15);
@@ -95,11 +93,9 @@ class Enemy2 {
             this.height
         );
     } else {
-        // Fallback: desenha o retângulo colorido
         ctx.fillStyle = this.color;
         ctx.fillRect(this.position.x + scrollOffset, this.position.y, this.width, this.height);
         
-        // Debug: mostra se está carregando
         ctx.fillStyle = 'white';
         ctx.font = '8px Arial';
         ctx.fillText('img?', this.position.x + scrollOffset + 5, this.position.y + 15);
@@ -179,11 +175,9 @@ class Enemy3 {
             this.height
         );
     } else {
-        // Fallback: desenha o retângulo colorido
         ctx.fillStyle = this.color;
         ctx.fillRect(this.position.x + scrollOffset, this.position.y, this.width, this.height);
         
-        // Debug: mostra se está carregando
         ctx.fillStyle = 'white';
         ctx.font = '8px Arial';
         ctx.fillText('img?', this.position.x + scrollOffset + 5, this.position.y + 15);

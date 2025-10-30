@@ -66,7 +66,7 @@ class Player {
         isInvulnerable = true;
         invulnerabilityTimer = INVULNERABILITY_TIME;
 
-        console.log(`💔 Player perdeu vida! Restam ${playerLives}`);
+        console.log(` Player perdeu vida! Restam ${playerLives}`);
 
         if (playerLives <= 0) {
             gameOver();
