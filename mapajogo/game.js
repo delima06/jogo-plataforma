@@ -358,6 +358,17 @@ function animate() {
 window.addEventListener('load', () => {
     player.position.x = 100;
     
+    const musica = new Audio("assets/trilha.mp3");
+    musica.loop = true;
+    musica.volume = 0.5;
+
+    // Toca quando o usuário clicar no canvas (ou qualquer lugar)
+    canvas.addEventListener("click", () => {
+    musica.play()
+        .then(() => console.log("🎵 Música tocando..."))
+        .catch(err => console.warn("⚠️ Navegador bloqueou o áudio:", err));
+    });
+
     // Espera um pouco para garantir que as imagens carreguem
     setTimeout(() => {
         initializeEnemies();
